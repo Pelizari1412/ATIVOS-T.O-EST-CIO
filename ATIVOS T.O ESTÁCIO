@@ -1,0 +1,92 @@
+# base_dados_equipamentos.py
+
+class Equipamento:
+    def __init__(self, nome, tipo, status='Funcionando'):
+        self.nome = nome
+        self.tipo = tipo
+        self.status = status
+        self.historico_falhas = 0  # Contador de falhas
+    
+    def atualizar_status(self, novo_status):
+        if novo_status == 'Em Falha':
+            self.historico_falhas += 1
+        self.status = novo_status
+    
+    def verificar_falhas_reincidentes(self):
+        return self.historico_falhas > 1
+    
+    def __str__(self):
+        falha_info = f" | Falhas reincidentes: {self.historico_falhas}" if self.verificar_falhas_reincidentes() else ""
+        return f"{self.nome} ({self.tipo}): {self.status}{falha_info}"
+
+class BaseDadosEquipamentos:
+    def __init__(self):
+        self.equipamentos = {}
+    
+    def adicionar_equipamento(self, nome, tipo, status='Funcionando'):
+        if nome in self.equipamentos:
+            print(f"Equipamento '{nome}' já existe.")
+        else:
+            self.equipamentos[nome] = Equipamento(nome, tipo, status)
+            print(f"Equipamento '{nome}' adicionado.")
+    
+    def atualizar_status_equipamento(self, nome, novo_status):
+        if nome in self.equipamentos:
+            self.equipamentos[nome].atualizar_status(novo_status)
+            print(f"Status do equipamento '{nome}' atualizado para '{novo_status}'.")
+        else:
+            print(f"Equipamento '{nome}' não encontrado.")
+    
+    def contar_equipamentos(self):
+        return len(self.equipamentos)
+    
+    def listar_equipamentos(self):
+        for equipamento in self.equipamentos.values():
+            print(equipamento)
+    
+    def listar_falhas_reincidentes(self):
+        print("\nEquipamentos com falhas reincidentes:")
+        reincidentes = [e for e in self.equipamentos.values() if e.verificar_falhas_reincidentes()]
+        if reincidentes:
+            for equipamento in reincidentes:
+                print(equipamento)
+        else:
+            print("Nenhum equipamento com falhas reincidentes.")
+
+if __name__ == "__main__":
+    # Criação da base de dados
+    base_dados = BaseDadosEquipamentos()
+    
+    # Adicionando equipamentos
+    base_dados.adicionar_equipamento('AMV Movimentação', 'Movimentação')
+    base_dados.adicionar_equipamento('Hotbox', 'Aquecimento')
+    base_dados.adicionar_equipamento('Coldwheel', 'Refrigeração')
+    base_dados.adicionar_equipamento('AMV Mola', 'Mola')
+    base_dados.adicionar_equipamento('Gerador', 'Energia')
+    base_dados.adicionar_equipamento('Nobreak', 'Energia')
+
+    # Simulando falhas
+    base_dados.atualizar_status_equipamento('AMV Movimentação', 'Em Falha')
+    base_dados.atualizar_status_equipamento('Hotbox', 'Em Falha')
+    base_dados.atualizar_status_equipamento('Coldwheel', 'Em Falha')
+    base_dados.atualizar_status_equipamento('AMV Mola', 'Em Falha')
+    base_dados.atualizar_status_equipamento('Gerador', 'Em Manutenção')
+    base_dados.atualizar_status_equipamento('Nobreak', 'Em Falha')
+
+    # Simulando mais falhas
+    base_dados.atualizar_status_equipamento('AMV Movimentação', 'Funcionando')
+    base_dados.atualizar_status_equipamento('AMV Movimentação', 'Em Falha')  # Falha reincidente
+    base_dados.atualizar_status_equipamento('Hotbox', 'Funcionando')
+    base_dados.atualizar_status_equipamento('Hotbox', 'Em Falha')  # Falha reincidente
+    base_dados.atualizar_status_equipamento('Nobreak', 'Funcionando')
+    base_dados.atualizar_status_equipamento('Nobreak', 'Em Falha')  # Falha reincidente
+
+    # Contar e listar equipamentos
+    quantidade_equipamentos = base_dados.contar_equipamentos()
+    print(f"Quantidade total de equipamentos: {quantidade_equipamentos}")
+    
+    print("\nLista de Equipamentos:")
+    base_dados.listar_equipamentos()
+
+    # Listar equipamentos com falhas reincidentes
+    base_dados.listar_falhas_reincidentes()
